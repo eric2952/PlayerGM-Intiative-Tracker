@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles/homepage.css"/>
+    <title>DND Tracker Home</title>
+</head>
+<body>
+    <h1>Create New Campaign</h1>
+    <div id="create-campaign">
+        <button class="campaignCreate-button" onclick="window.location.href='campaignCreation.html'">Create Campaign</button>
+    </div>
+    <h1>Campaign Selection</h1>
+    <div id="campaign-buttons"></div>
+    <script>
+    fetch('/api/campaigns')
+    .then(res => res.json())
+    .then(folders => {
+        const container = document.getElementById('campaign-buttons');
+        folders.forEach(folder => {
+            const btn = document.createElement('button');
+            btn.textContent = folder;
+            btn.className = 'Campaign-Select-Button';
+            
+            //btn.onclick = () => window.location.href = `tracker.html?campaign=${encodeURIComponent(folder)}`;
+            btn.addEventListener('click', function() {
+                // Call your role selection function here
+                if (typeof showRoleSelection === 'function') {
+                    showRoleSelection(folder);
+                }
+            });
+            const NewSection = document.createElement("div");
+            NewSection.classList.add('Campaign-section')
+            NewSection.appendChild(btn);
+            container.appendChild(NewSection)
+        });
+    });
+    </script>
+    <script src="scripts/homeControls.js"></script>
+    <div id="roleSelectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Select Your Role</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Are you joining as a Player or GM?</p>
+                <div class="role-buttons">
+                    <button id="playerBtn" class="role-button player-btn">Player</button>
+                    <button id="gmBtn" class="role-button gm-btn">GM</button>
+                </div>
+                <div class="character-selection">
+                    <select id="characterSelect" class="character-dropdown">
+                    <option value="">Select Character ...</option>
+                </select>
+            </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="styles/style.css"/>
+        <title>Campaign Creation</title>
+    </head>
+    <body>
+        <button id="returnHome" class="basic-button" onclick="window.location.href='Home.html'">Home</button>
+        <h1>Campaign Creation</h1>
+        <div id = "campaignDetails1" class="NewCampaignInput">
+            Campaign Name: <input type="text" id="campaignName">
+
+        </div>
+        <div class="indented-section">
+            <h2>Add Character</h2>
+            <div id = "characterDetails" class="NewCampaignInput">
+                Character Name: <input type="text"  id="characterName">
+                Character AC:  <input type="text" id="characterAC">
+                Character HP: <input type="text" id="characterHP">            
+            </div>
+            <div id = "buttonDiv">
+                <button id="addCharacterbtn" class="basic-button">Add Character</button>
+            </div>
+            <div id="Character"></div>
+
+        </div>
+        <button id="createCampaignbtn" class="basic-button">Create Campaign</button>
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script src="scripts/CampaignCreationScripts.js"></script>
+
+    </body>
+</html>

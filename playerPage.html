@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.core.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/css/glide.theme.min.css">
+        <link rel="stylesheet" href="styles/playerStyles.css"/>
+        <title>Combat</title>
+    </head>
+    <body>
+        <button id="returnHome" class="basic-button" onclick="window.location.href='Home.html'">Home</button>
+        <h1>Combat Tracker</h1>
+            <div class="glide">
+                
+                <div class="glide__track" data-glide-el="track">
+                    <ul class="glide__slides"></ul>
+                </div>
+
+            </div>
+
+ 
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="scripts/PlayerPageScripts.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide/dist/glide.min.js"></script>
+
+    </body>
+</html>

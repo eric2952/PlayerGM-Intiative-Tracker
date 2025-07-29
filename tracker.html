@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="styles/style.css"/>
+        <title>Combat</title>
+    </head>
+    <body>
+        <button id="returnHome" class="basic-button" onclick="window.location.href='Home.html'">Home</button>
+        <h1>Combat Tracker</h1>
+
+        <div id = "initiative-board">
+            <div id = "combatantDetails" class="indented-section">
+                <div id = "cmbtnamediv" class="NewCombatant-section">Combatant Name: <input type="text-box" id="combatantName"></div>
+                <div id = "cmbtacdiv" class="NewCombatant-section">Combatant AC:  <input type="text-box" id="combatantAC"></div>
+                <div id = "cmbthpdiv" class="NewCombatant-section">Combatant HP: <input type="text-box" id="combatantHP"></div>
+                <div id = "cmbtinitdiv" class="NewCombatant-section">Combatant Initiative: <input type="text-box" id="combatantInit"></div>
+                <div id = "cmbtnamediv" class="Control-section">
+                    <button id="addCombatantbtn" class="basic-button">Add As Player</button>
+                    <button id="addAntagonistbtn" class="basic-button">Add Antagonist</button>
+                    <button id="addNPCbtn" class="basic-button">Add As Neutral</button>
+                </div>
+                <div id = "cmbtnamediv" class="Control-section">
+                    <button id="NextUp" class="basic-button">Next</button>
+                    <button id="ResetInitiative" class="basic-button">Reset Encounter</button>
+                </div>
+                <div class="dice-roller-input-group">
+                    <input type="text" name="notation" id="dice-roller-input-id" placeholder="e.g. 4d6" class="dice-roller-input" value="4d6">
+                    <button id="dicebutton" type="button" class="dice-roller-button">Roll</button>
+                    <span id="diceResult"></span>
+                </div>    
+            </div>
+        
+            <div id="combatant" class="initiativeList"></div>
+            <div id="savedInitiatives" class="storedInitiatives"></div>
+        </div>    
+        <script src="https://unpkg.com/mathjs@11.8.2/lib/browser/math.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/random-js@2.1.0/dist/random-js.umd.min.js"></script>
+        <script src="scripts/dicce-roller.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="scripts/initiativeScripts.js"></script>
+
+        
+    </body>
+</html>

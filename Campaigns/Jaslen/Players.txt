@@ -1,0 +1,4 @@
+Aedhan; 21; 164
+Horace; 19; 158
+Nandor; 14; 92
+Seren; 16; 122
