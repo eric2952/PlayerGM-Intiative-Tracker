@@ -1,4 +1,4 @@
-Aedhan; 21; 164
-Horace; 19; 158
-Nandor; 14; 92
-Seren; 16; 122
+Aehdan; 21; 164; /ProfileImages/Aehdan.png
+Horace; 19; 158; /ProfileImages/Horace.jpeg
+Nandor; 14; 92; /ProfileImages/Nandor.png
+Seren; 16; 122; /ProfileImages/Seren.jpeg

@@ -11,8 +11,15 @@ const acField = document.getElementById("combatantAC");
 const hpField = document.getElementById("combatantHP");
 const initField = document.getElementById("combatantInit");
 const diceRollerButton = document.getElementById("dicebutton");
-const diceRollerInput = document.getElementById("dice-roller-input-id");
+const diceRollerInput1 = document.getElementById("dice-roller-input-id1");
+const diceRollerInput2 = document.getElementById("dice-roller-input-id2");
+const diceRollerInput3 = document.getElementById("dice-roller-input-id3");
 const diceRollerOutput = document.getElementById("diceResult");
+const diceToggle = document.getElementById('diceToggle');
+const diceMenu = document.getElementById('diceDetails');
+const combatantToggle = document.getElementById('addCombatantMenu');
+const combatantMenu = document.getElementById('CombatantDetails');
+
 const socket = io();
 let campaignName = null;
 let isUpdating = false;
@@ -43,7 +50,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     socket.on('player', (data) => {
         isUpdating = true;
         console.log("Player:", data);
-        characterAdder(data.name, data.ac, data.hp, data.initiative, data.chrType);
+        characterAdder(data.name, data.ac, data.hp, data.initiative, data.chrType, data.hp);
         setTimeout(() => {isUpdating = false;}, 1000);
     });
     socket.on('next-up', (data) =>{
@@ -51,6 +58,32 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.log("Next combatant", data);
         nextinLine();
         setTimeout(() => {isUpdating = false;}, 1000);
+    });
+    diceToggle.addEventListener('click', function() {
+        diceMenu.classList.toggle('open');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const isClickInsideMenu = diceMenu.contains(event.target);
+        const isToggleButton = event.target === diceToggle;
+        
+        if (!isClickInsideMenu && !isToggleButton && diceMenu.classList.contains('open')) {
+            diceMenu.classList.remove('open');
+        }
+    });
+    combatantToggle.addEventListener('click', function() {
+        combatantMenu.classList.toggle('open');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        const isClickInsideMenu2 = combatantMenu.contains(event.target);
+        const isToggleButton2 = event.target === combatantToggle;
+        
+        if (!isClickInsideMenu2 && !isToggleButton2 && combatantMenu.classList.contains('open')) {
+            combatantMenu.classList.remove('open');
+        }
     });
     await loadCampaignCharacters(campaignName);
 });
@@ -66,7 +99,7 @@ async function loadCampaignCharacters(cName) {
         const characters = await response.json();
 
         characters.forEach(character => {
-            characterAdder(character.name,character.ac, character.hp, character.initiative, character.chrType);
+            characterAdder(character.name,character.ac, character.hp, character.initiative, character.chrType, character.unmodifiedhp, character.imagePath);
         });
     } catch(error){
         console.error('Error loading character file: ', error);
@@ -78,28 +111,49 @@ resetInitiativebutton.addEventListener("click", ()=>{
     socket.emit('reset-initiative', campaignName);
 })
 
-addPlayerSectionButton.addEventListener("click", () => {
+addPlayerSectionButton.addEventListener("click", async () => {
     cName = cmtName.value;
     cAC = acField.value;
     cHP = hpField.value;
     cINIT = parseInt(initField.value);
-    characterAdder(cName,cAC,cHP,cINIT,"player");
+    const imageFile = document.getElementById('imageUpload').files[0];
+    let imagePath = null;
+    
+    // Upload image if selected
+    if (imageFile) {
+        imagePath = await uploadImage(imageFile, Charactername);
+    }
+    characterAdder(cName,cAC,cHP,cINIT,"player",cHP,imagePath);
 })
 
-addAntagonistSectionButton.addEventListener("click", () => {
+addAntagonistSectionButton.addEventListener("click", async () => {
     cName = cmtName.value;
     cAC = acField.value;
     cHP = hpField.value;
     cINIT = parseInt(initField.value);
-    characterAdder(cName,cAC,cHP,cINIT,"antagonist");
+    const imageFile = document.getElementById('imageUpload').files[0];
+    let imagePath = null;
+    
+    // Upload image if selected
+    if (imageFile) {
+        imagePath = await uploadImage(imageFile, cName);
+    }
+    characterAdder(cName,cAC,cHP,cINIT,"antagonist",cHP, imagePath);
 })
 
-addNPCSectionButton.addEventListener("click", () => {
+addNPCSectionButton.addEventListener("click", async () => {
     cName = cmtName.value;
     cAC = acField.value;
     cHP = hpField.value;
     cINIT = parseInt(initField.value);
-    characterAdder(cName,cAC,cHP,cINIT,"npc");
+    const imageFile = document.getElementById('imageUpload').files[0];
+    let imagePath = null;
+    
+    // Upload image if selected
+    if (imageFile) {
+        imagePath = await uploadImage(imageFile, cName);
+    }
+    characterAdder(cName,cAC,cHP,cINIT,"npc",cHP, imagePath);
 })
 
 nextUpbutton.addEventListener("click", () => {
@@ -118,12 +172,12 @@ function nextinLine(){
         socket.emit('move-carousel-next', {campaign: campaignName });
     }
 }
-function characterAdder(combatName, combatAC, combatHP, combatINIT,combatantType){
+function characterAdder(combatName, combatAC, combatHP, combatINIT,combatantType,unmodifiedhp, imagePath){
     relativeInitiative = 0;
-    const existingSections = container.querySelectorAll('.Player-section');
+    const existingSections = container.querySelectorAll('.Player-section, .Enemy-section, .Neutral-section');
     sectcont++;
     const NewSection = document.createElement("div");
-    const combatantText = document.createElement("span");
+    const combatantText = document.createElement("character-span");
     const ACBox = document.createElement("input");
     const HPBox = document.createElement("input");
     const hpModifier = document.createElement("input")
@@ -134,7 +188,7 @@ function characterAdder(combatName, combatAC, combatHP, combatINIT,combatantType
     const ACText = document.createElement("span");
     const initText = document.createElement("input");
     const ModifierText = document.createElement("span");
-    const spacer = document.createElement("div");
+    const unModHP = document.createElement("span");
 
     const cornerTL = document.createElement("div");
     const cornerTR = document.createElement("div");
@@ -156,10 +210,13 @@ function characterAdder(combatName, combatAC, combatHP, combatINIT,combatantType
     initText.classList.add("initstattext-box");
     ModifierText.classList.add("modifier-text");
 
+
     HPText.textContent = "HP:";
     ACText.textContent = "AC:";
     initText.placeholder = combatINIT;
-    ModifierText.textContent = "Apply Healing/Damage:"
+    ModifierText.textContent = "Apply Healing/Damage:";
+    unModHP.textContent = `/${unmodifiedhp}`;
+    unModHP.id = "unmodifiedHP";
 
     ACBox.type = "text";
     ACBox.placeholder = combatAC || "AC";
@@ -189,21 +246,32 @@ function characterAdder(combatName, combatAC, combatHP, combatINIT,combatantType
     removeChrbutton.id = "rmvBtn";
 
     // Configure spacer to push button to the right
-    spacer.classList.add("spacer");
-    spacer.style.flexGrow = "1";
 
     cornerTL.classList.add("corner-decoration", "corner-tl");
     cornerTR.classList.add("corner-decoration", "corner-tr");
     cornerBL.classList.add("corner-decoration", "corner-bl");
     cornerBR.classList.add("corner-decoration", "corner-br");
 
+    if (imagePath) {
+        NewSection.setAttribute('data-image-path', imagePath);
+        const imagePreview = document.createElement("img");
+        imagePreview.src = imagePath;
+        imagePreview.style.width = "50px";
+        imagePreview.style.height = "50px";
+        imagePreview.style.objectFit = "cover";
+        imagePreview.style.borderRadius = "5px";
+        imagePreview.classList.add("character-image-preview");
+        imagePreview.style.margin = "5px";
+        NewSection.appendChild(imagePreview);
+    }
+
     NewSection.appendChild(initText);
     NewSection.appendChild(combatantText);
-    NewSection.appendChild(spacer);
     NewSection.appendChild(ACText);
     NewSection.appendChild(ACBox);
     NewSection.appendChild(HPText);
     NewSection.appendChild(HPBox);
+    NewSection.appendChild(unModHP);
     NewSection.appendChild(ModifierText);
     NewSection.appendChild(hpModifier);
     NewSection.appendChild(healbutton);
@@ -225,15 +293,25 @@ function characterAdder(combatName, combatAC, combatHP, combatINIT,combatantType
         ac:combatAC, 
         hp:combatHP, 
         initiative:combatINIT,    
-        chrType: combatantType       
+        chrType: combatantType,
+        unmodifiedhp: combatHP,
+        imagePath: imagePath       
     });
 }
 
 diceRollerButton.addEventListener("click", () => {
         try {
-            const diceNotation = diceRollerInput.value.trim();
+            const diceNotation1 = diceRollerInput1.value.trim();
+            const diceNotation2 = diceRollerInput2.value.trim();
+            const diceNotation3 = "+"+diceRollerInput3.value.trim();
+            // Build the dice notation string
+            let diceNotation = diceNotation1 + "d" + diceNotation2;
+            if(diceNotation3 !== "+") {
+                diceNotation +=  diceNotation3;
+            }
+
             const roll = new rpgDiceRoller.DiceRoll(diceNotation);
-            
+
             diceRollerOutput.textContent = `Result: ${roll.total} (${roll.output})`;
             diceRollerOutput.style.color = '#4CAF50';
             
@@ -350,6 +428,8 @@ function HealHP(button){
     const combatName = theSection.querySelector(".Playersection-text").textContent;
     const combatINIT = theSection.querySelector("input.initstattext-box").value || theSection.querySelector("input.initstattext-box").placeholder;
     const theHeal = parseInt(themodifierBox.value || 0);
+    const unmodifiedHP = parseInt(theSection.querySelector("#unmodifiedHP").textContent.replace('/',''));
+
     if (theSection.classList.contains('Player-section')){
         combatantType = "player";
     }else if(theSection.classList.contains('Enemy-section')){
@@ -358,6 +438,9 @@ function HealHP(button){
         combatantType = "npc"
     }
     newHPs = combatantHP + theHeal;
+    if(newHPs > unmodifiedHP){
+        newHPs = unmodifiedHP;
+    }
     thehpBox.value = newHPs;
     if(isUpdating) return;
     socket.emit('hp-change', {
@@ -399,3 +482,27 @@ Sortable.create(container, {
     handle: null, // null means entire element is draggable
     
 });
+
+async function uploadImage(imageFile, characterName) {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('characterName', characterName);
+    
+    try {
+        const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return result.imagePath;
+        } else {
+            console.error('Failed to upload image');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        return null;
+    }
+}

@@ -1,0 +1,5 @@
+Codex; 19; 36; 0; player; 57
+Graaz; 18; 61; 0; player; 61
+Teldo; 19; 74; 0; player; 74
+Sizix; 14; 28; 0; player; 36
+Vicar; 18; 13; 0; player; 81

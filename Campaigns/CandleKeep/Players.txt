@@ -1,0 +1,5 @@
+Codex; 19; 57
+Graaz; 18; 61
+Teldo; 19; 74
+Sizix; 14; 36
+Vicar; 18; 81

@@ -121,10 +121,27 @@ body{
     right: -10px;
     background-image: url('./icons/bottomright.png');
 }
-.Player-section,.Me-section{
+
+.Player-section,
+.Me-section,
+.Enemy-section,
+.Neutral-section {
     border: 3px solid;
     display: flex;
     width: 50%;
+    align-items: center;
+    width: 90%;           /* Reduce width slightly for better spacing */
+    height: auto;
+    max-height: 70vh;     /* Prevent sections from being too tall */
+    flex-direction: column; /* Stack content vertically if needed */
+    justify-content: center;
+    transition: all .3s ease;
+}
+
+.Player-section,.Me-section{
+    border: 3px solid;
+    display: flex;
+
     color:var(--darkText);
     align-items: center;
     position: relative;
@@ -140,26 +157,16 @@ body{
     border-color: var(--heroColor);
 }
 .Me-section {
-    border: 3px solid;
-    display: flex;
-    width: 50%;
     color:var(--darkText);
     border-color: var(--meColor);
-    align-items: center;
     position: relative;
     /*border-image: linear-gradient(45deg, #ece1d9, #74c7ca, #6fe2dc, #13298b) 1;*/
     border-radius: 15px;
-    padding: 15px;
-    margin: 10px;
     background: var(--darkCardColor);
     box-shadow: inset 0 0 20px rgba(92, 53, 129, 0.3);
     font-family: 'Modern Antiqua', serif; 
 }
 .Enemy-section {
-    border: 3px solid;
-    display: flex;
-    width: 50%;
-    align-items: center;
     position: relative;
     color: #ccc;
     border-color: #2d080f;
@@ -170,12 +177,10 @@ body{
     background-color: var(--opponentColor);
 }
 .Neutral-section {
-    border: 3px solid;
-    display: flex;
-    width: 50%;
-    align-items: center;
+
     position: relative;
     color: #ccc;
+    border-color: #24271d;
     /*border-image: linear-gradient(45deg, #ece1d9, #74c7ca, #6fe2dc, #13298b) 1;*/
     border-radius: 15px;
     padding: 15px;
@@ -183,20 +188,34 @@ body{
     background-color: var(--npcColor);
 
 }
+
+.initiative-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 120px; /* Ensures consistent width */
+    font-family: 'Modern Antiqua', serif;
+    margin: 0 auto; /* Centers the badge itself */
+}
+.stat-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-width: 120px; /* Ensures consistent width */
+    font-family: 'Modern Antiqua', serif;
+    margin: 0 auto; /* Centers the badge itself */
+}
+
 .character-name{
     padding: 15px;
-}
-.Player-section,
-.Me-section,
-.Enemy-section,
-.Neutral-section {
-    width: 90%;           /* Reduce width slightly for better spacing */
-    height: auto;
-    max-height: 70vh;     /* Prevent sections from being too tall */
-    flex-direction: column; /* Stack content vertically if needed */
+    display: flex;
+    align-items: center;
     justify-content: center;
-    transition: all .3s ease;
+    text-align: center;
 }
+
 .glide__slide {
     min-width: 200px;  /* Set minimum width for character cards */
     max-width: 500px;  /* Set maximum width for character cards */

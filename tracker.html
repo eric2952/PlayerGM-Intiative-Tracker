@@ -6,34 +6,53 @@
         <title>Combat</title>
     </head>
     <body>
-        <button id="returnHome" class="basic-button" onclick="window.location.href='Home.html'">Home</button>
+        <button id="returnHome" class="Home-button" onclick="window.location.href='Home.html'">Home</button>
         <h1>Combat Tracker</h1>
-
         <div id = "initiative-board">
-            <div id = "combatantDetails" class="indented-section">
-                <div id = "cmbtnamediv" class="NewCombatant-section">Combatant Name: <input type="text-box" id="combatantName"></div>
-                <div id = "cmbtacdiv" class="NewCombatant-section">Combatant AC:  <input type="text-box" id="combatantAC"></div>
-                <div id = "cmbthpdiv" class="NewCombatant-section">Combatant HP: <input type="text-box" id="combatantHP"></div>
-                <div id = "cmbtinitdiv" class="NewCombatant-section">Combatant Initiative: <input type="text-box" id="combatantInit"></div>
-                <div id = "cmbtnamediv" class="Control-section">
-                    <button id="addCombatantbtn" class="basic-button">Add As Player</button>
-                    <button id="addAntagonistbtn" class="basic-button">Add Antagonist</button>
-                    <button id="addNPCbtn" class="basic-button">Add As Neutral</button>
+            <div class="left-panel">
+                <div id="diceDetails" class="side-menu-content">
+                    <div class="side-menu-content">
+                        <button id="diceToggle" class="side-menu-toggle">Dice Roller</button>
+                        <div class="dice-roller-input-group">
+                            <input type="text" name="notation" id="dice-roller-input-id1" placeholder="e.g. 2" class="dice-roller-input" value="2">
+                            <span> d </span>
+                            <input type="text" name="notation" id="dice-roller-input-id2" placeholder="e.g. 10" class="dice-roller-input" value="10">
+                            <span> + </span>
+                            <input type="text" name="notation" id="dice-roller-input-id3" placeholder="e.g. 10" class="dice-roller-input" value="5">
+                            <button id="dicebutton" type="button" class="dice-roller-button">Roll</button>
+                            
+                        </div>
+                        <div><span id="diceResult"></span></div> 
+                    </div>
                 </div>
-                <div id = "cmbtnamediv" class="Control-section">
-                    <button id="NextUp" class="basic-button">Next</button>
-                    <button id="ResetInitiative" class="basic-button">Reset Encounter</button>
+                <div id="combatantDetails" class="side-menu-content">
+                    <div id= "CombatantDetails" class="side-menu-content">
+                        <button id="addCombatantMenu" class="side-menu-toggle">Add Combatant</button>
+                        <div id = "cmbtnamediv" class="NewCombatant-section">Combatant Name: <input type="text-box" id="combatantName"></div>
+                        <div id = "cmbtacdiv" class="NewCombatant-section">Combatant AC:  <input type="text-box" id="combatantAC"></div>
+                        <div id = "cmbthpdiv" class="NewCombatant-section">Combatant HP: <input type="text-box" id="combatantHP"></div>
+                        <div id = "cmbtinitdiv" class="NewCombatant-section">Combatant Initiative: <input type="text-box" id="combatantInit"></div>
+                        Character Profile Image: <input type="file" id="imageUpload" accept="image/png,image/jpeg,image/jpg" single> 
+                        <div id = "cmbtnamediv" class="Control-section">
+                            <button id="addCombatantbtn" class="newplayer-button">Add As Player</button>
+                            <button id="addAntagonistbtn" class="newant-button">Add Antagonist</button>
+                            <button id="addNPCbtn" class="newneu-button">Add As Neutral</button>
+                        </div>
+                        <div id = "cmbtnamediv" class="Control-section">
+                            <button id="ResetInitiative" class="basic-button">Reset Encounter</button>
+                        </div> 
+                    </div>
                 </div>
-                <div class="dice-roller-input-group">
-                    <input type="text" name="notation" id="dice-roller-input-id" placeholder="e.g. 4d6" class="dice-roller-input" value="4d6">
-                    <button id="dicebutton" type="button" class="dice-roller-button">Roll</button>
-                    <span id="diceResult"></span>
-                </div>    
             </div>
-        
-            <div id="combatant" class="initiativeList"></div>
+            <!-- Collapsible side menu for dice roller -->
+                
+                <div id="parentInitiative" class="parInitiative">
+                    <button id="NextUp" class="Next-button">Next</button>
+                    <div id="combatant" class="initiativeList"></div>
+                </div>
+            
             <div id="savedInitiatives" class="storedInitiatives"></div>
-        </div>    
+        </div>   
         <script src="https://unpkg.com/mathjs@11.8.2/lib/browser/math.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/random-js@2.1.0/dist/random-js.umd.min.js"></script>
         <script src="scripts/dicce-roller.js"></script>

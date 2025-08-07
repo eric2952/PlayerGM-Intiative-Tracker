@@ -17,11 +17,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         socket.emit('join-campaign', campaignName);
     }
     // Listen for HP updates from other clients
-    socket.on('player-hp-change', (data) => {
+    socket.on('player-hp-change', (data,unmodifiedhp) => {
         isUpdating = true;
         console.log('HP updated')
         // Find the slide by character name instead of sectionId
-        hpChanger(data);
+        hpChanger(data,unmodifiedhp);
 
         setTimeout(() => { isUpdating = false; }, 100);
     });
@@ -74,7 +74,9 @@ async function loadCampaignCharacters(cName) {
                     ac: character.ac,
                     hp: character.hp,
                     initiative: parseInt(character.initiative),
-                    combatantType: character.chrType
+                    combatantType: character.chrType,
+                    unmodifiedhp: character.unmodifiedhp,
+                    imagePath: character.imagePath
                 };
                 const glideTrack = document.querySelector('.glide__slides');                
                 const isMe = character.name == selectedcharacterName;
@@ -104,21 +106,41 @@ function createCharacterSlide(character, itsMe) {
     const slide = document.createElement('li');
     slide.className = 'glide__slide';
     slide.id = `character-${character.id}`;
+    relativeHPperc = character.hp / character.unmodifiedhp;
+    relativeHPdisplay = "Undamaged"
+    if(relativeHPperc < 1 && relativeHPperc >.89){
+        relativeHPdisplay = "Cosmetic Damage"
+    }else if(relativeHPperc<=.89 && relativeHPperc> .69){
+        relativeHPdisplay = "Minor Wounds"
+    }else if(relativeHPperc<=.69 && relativeHPperc> .49){
+        relativeHPdisplay = "Damaged"
+    }else if(relativeHPperc<=.49 && relativeHPperc> .19){
+        relativeHPdisplay = "Bloodied"
+    }else if(relativeHPperc<=.19 && relativeHPperc> .5){
+        relativeHPdisplay = "Severe Wounds"
+    }else if(relativeHPperc <= .05){
+        relativeHPdisplay = "Grave"
+    }   
+    
+const imageHTML = character.imagePath ? 
+    `<img src="${character.imagePath}" alt="${character.name}" class="character-image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin: 10px auto; display: block;">` : '';
+
     if (itsMe) {
         slide.innerHTML = `
         <div class="Me-section">
             <div class="character-header">
                 <div class="initiative-badge">Initiative: ${character.initiative}</div>
+                ${imageHTML}
                 <h3 class="character-name">${character.name}</h3>
             </div>
             <div class="character-stats">
                 <div class="stat-group">
-                    <label>AC</label>
+                    <label>AC: </label>
                     <label id="AC-${character.id}">${character.ac}</label>
                 </div>
                 <div class="stat-group">
-                    <label>HP</label>
-                    <label id="HP-${character.id}">${character.hp}</label>
+                    <label>HP: </label>
+                    <label id="HPPlayer-${character.id}">${character.hp}</label>
                 </div>
             </div>
         </div>
@@ -129,7 +151,16 @@ function createCharacterSlide(character, itsMe) {
         <div class="Enemy-section">
             <div class="character-header">
                 <div class="initiative-badge">Initiative: ${character.initiative}</div>
+                ${imageHTML}
                 <h3 class="character-name">${character.name}</h3>
+            </div>
+            <div class="character-stats">
+                <div class="stat-group">
+                    <label>Condition:</label>
+                </div>
+                <div class="stat-group">
+                    <label id="HPNPC-${character.id}">${relativeHPdisplay}</label>
+                </div>
             </div>
         </div>
     `;
@@ -139,7 +170,16 @@ function createCharacterSlide(character, itsMe) {
         <div class="Neutral-section">
             <div class="character-header">
                 <div class="initiative-badge">Initiative: ${character.initiative}</div>
+                ${imageHTML}
                 <h3 class="character-name">${character.name}</h3>
+            </div>
+            <div class="character-stats">
+                <div class="stat-group">
+                    <label>Condition</label>
+                </div>
+                <div class="stat-group">
+                    <label id="HPNPC-${character.id}">${relativeHPdisplay}</label>
+                </div>
             </div>
         </div>
     `;        
@@ -149,16 +189,17 @@ function createCharacterSlide(character, itsMe) {
         <div class="Player-section">
             <div class="character-header">
                 <div class="initiative-badge">Initiative: ${character.initiative}</div>
+                ${imageHTML}
                 <h3 class="character-name">${character.name}</h3>
             </div>
             <div class="character-stats">
                 <div class="stat-group">
-                    <label>AC</label>
+                    <label>AC: </label>
                     <label id="AC-${character.id}">${character.ac}</label>
                 </div>
                 <div class="stat-group">
-                    <label>HP</label>
-                    <label id="HP-${character.id}">${character.hp}</label>
+                    <label>HP: </label>
+                    <label id="HPPlayer-${character.id}">${character.hp}</label>
                 </div>
             </div>
         </div>
@@ -170,16 +211,36 @@ function sortCharactersByInitiative() {
     characters.sort((a, b) => b.initiative - a.initiative);
 }
 
-function hpChanger(data){
+function hpChanger(data,unmodifiedHP){
     const slides = document.querySelectorAll('.glide__slide');
     slides.forEach(slide => {
         const characterNameElement = slide.querySelector('.character-name');
         if (characterNameElement && characterNameElement.textContent === data.name) {
             // Find the HP label and update it
-            const hpLabel = slide.querySelector('[id^="HP-"]'); // Selects any element with ID starting with "HP-"
-            if (hpLabel) {
-                hpLabel.textContent = data.newHP;
+            const hpLabel1 = slide.querySelector('[id^="HPPlayer-"]'); // Selects any element with ID starting with "HP-"
+            const hpLabel2 = slide.querySelector('[id^="HPNPC-"]')
+            if (hpLabel1) {
+                hpLabel1.textContent = data.newHP;
                 console.log(`Updated HP for ${data.name} to ${data.newHP}`);
+            }
+            if (hpLabel2) {
+                relativeHPperc = data.hp / unmodifiedHP;
+                relativeHPdisplay = "Undamaged"
+                if(relativeHPperc < 1 && relativeHPperc >.89){
+                    relativeHPdisplay = "Cosmetic Damage"
+                }else if(relativeHPperc<=.89 && relativeHPperc> .69){
+                    relativeHPdisplay = "Minor Wounds"
+                }else if(relativeHPperc<=.69 && relativeHPperc> .49){
+                    relativeHPdisplay = "Damaged"
+                }else if(relativeHPperc<=.49 && relativeHPperc> .19){
+                    relativeHPdisplay = "Bloodied"
+                }else if(relativeHPperc<=.19 && relativeHPperc> .05){
+                    relativeHPdisplay = "Severe Wounds"
+                }else if(relativeHPperc <= .05){
+                    relativeHPdisplay = "Grave"
+                }                
+                hpLabel2.textContent = relativeHPdisplay
+                console.log(`Updated HP for ${data.name} to ${relativeHPdisplay}`);
             }
         }
     });

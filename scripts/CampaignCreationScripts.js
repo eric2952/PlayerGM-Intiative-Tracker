@@ -10,11 +10,19 @@ const campaignName = document.getElementById("campaignName");
 let sectcont = 0;
 
 
-addPlayerButton.addEventListener("click", () =>{
+addPlayerButton.addEventListener("click", async () =>{
     sectcont++;
     Charactername = chrName.value;
     CharacterAC = chrAC.value;
     CharacterHP = chrHP.value;
+
+    const imageFile = document.getElementById('imageUpload').files[0];
+    let imagePath = null;
+    
+    // Upload image if selected
+    if (imageFile) {
+        imagePath = await uploadImage(imageFile, Charactername);
+    }
 
     const NewSection = document.createElement("div");
     const playerText = document.createElement("span");
@@ -30,6 +38,10 @@ addPlayerButton.addEventListener("click", () =>{
 
     NewSection.classList.add("Player-section");
     NewSection.id = sectcont;
+
+    if (imagePath) {
+        NewSection.setAttribute('data-image-path', imagePath);
+    }
     
     playerText.textContent = `${Charactername}`;
     playerText.classList.add("section-text");
@@ -47,6 +59,17 @@ addPlayerButton.addEventListener("click", () =>{
     cornerTR.classList.add("corner-decoration", "corner-tr");
     cornerBL.classList.add("corner-decoration", "corner-bl");
     cornerBR.classList.add("corner-decoration", "corner-br");
+
+    if (imagePath) {
+        const imagePreview = document.createElement("img");
+        imagePreview.src = imagePath;
+        imagePreview.style.width = "50px";
+        imagePreview.style.height = "50px";
+        imagePreview.style.objectFit = "cover";
+        imagePreview.style.borderRadius = "5px";
+        imagePreview.classList.add("character-image-preview");
+        NewSection.appendChild(imagePreview);
+    }
 
     // Configure spacer to push button to the right
     spacer.classList.add("spacer");
@@ -101,10 +124,11 @@ createCampaignbtn.addEventListener("click", async () =>{
 
     characterSections.forEach(section=>{
         const name = section.querySelector('.section-text').textContent;
-        const theAC = section.children[1].textContent.replace('AC: ', '');
-        const theHP = section.children[2].textContent.replace('HP: ', '');
+        const theAC = section.children[2].textContent.replace('AC: ', '');
+        const theHP = section.children[3].textContent.replace('HP: ', '');
+        const imagePath = section.getAttribute('data-image-path') || null;
 
-        characters.push({name, ac: theAC, hp: theHP, chrType: "player"});        
+        characters.push({name, ac: theAC, hp: theHP, chrType: "player", imagePath: imagePath});        
     });
     if (!campaignNameVal){
         alert('Please enter a campaign name.');
@@ -139,3 +163,27 @@ createCampaignbtn.addEventListener("click", async () =>{
     }    
 }
 );
+
+async function uploadImage(imageFile, characterName) {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('characterName', characterName);
+    
+    try {
+        const response = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            return result.imagePath;
+        } else {
+            console.error('Failed to upload image');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        return null;
+    }
+}

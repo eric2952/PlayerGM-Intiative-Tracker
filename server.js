@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
 
 const app = express();
 const PORT = 3000;
@@ -8,9 +9,112 @@ const PORT = 3000;
 const http = require('http');
 const socketIo = require('socket.io');
 
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+
 // Middleware
 app.use(express.json());
+
+app.get('/', (req, res) => {
+    res.redirect('/Home.html');
+});
+
 app.use(express.static('.')); // Serve your HTML/CSS/JS files
+
+const users = [
+    {
+        id: 1,
+        username: 'admin',
+        password: '$2b$10$Rf7xZuzfMmYi2MfpA8OXIuh9rURSAlvfZKxUTq.CR1c5WbHQepsJe' // "Imherefordnd"
+    }
+];
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ message: 'Access token required' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid token' });
+        }
+        req.user = user;
+        next();
+    });
+};
+
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        
+        const user = users.find(u => u.username === username);
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+        
+        const token = jwt.sign(
+            { userId: user.id, username: user.username },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        
+        res.json({
+            token,
+            user: { id: user.id, username: user.username }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// Verify token route
+app.get('/api/auth/verify', authenticateToken, (req, res) => {
+    res.json({ valid: true, user: req.user });
+});
+
+// Protect your existing campaigns route
+app.get('/api/campaigns', authenticateToken, (req, res) => {
+    try{
+        const campaignsDir = path.join(__dirname, 'Campaigns');
+        if (!fs.existsSync(campaignsDir)) {
+            fs.mkdirSync(campaignsDir);
+        }
+        
+        // Read campaigns directory and return folder names
+        const campaigns = fs.readdirSync(campaignsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+        
+        console.log('Found campaigns:', campaigns); // Debug log
+        res.json(campaigns);
+    } catch (error) {
+        console.error('Error reading campaigns:', error);
+        res.status(500).json({ error: 'Failed to read campaigns' });
+    }
+    });
+// API endpoint to get all campaigns
+/*app.get('/api/campaigns', (req, res) => {
+    try {
+        const campaigns = fs.readdirSync(campaignsDir, { withFileTypes: true })
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name);
+        
+        res.json(campaigns);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to read campaigns' });
+    }
+});*/
+
 
 // Ensure Campaigns directory exists
 const campaignsDir = path.join(__dirname, 'Campaigns');
@@ -27,7 +131,61 @@ const io = socketIo(server, {
     }
 });
 
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, profileImagesDir);
+    },
+    filename: function (req, file, cb) {
+        const characterName = req.body.characterName || 'character';
+        const ext = path.extname(file.originalname);
+        const filename = `${characterName}${ext}`;
+        cb(null, filename);
+    }
+});
 
+const upload = multer({ 
+    storage: storage,
+    fileFilter: function (req, file, cb) {
+        // Check file type
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed!'), false);
+        }
+    },
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
+
+
+const profileImagesDir = path.join(__dirname, 'ProfileImages');
+if (!fs.existsSync(profileImagesDir)) {
+    fs.mkdirSync(profileImagesDir, { recursive: true });
+};
+
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const characterName = req.body.characterName || 'character';
+    const ext = path.extname(req.file.originalname);
+    const newFilename = `${characterName}${ext}`;
+    
+    const oldPath = path.join(profileImagesDir, req.file.filename);
+    const newPath = path.join(profileImagesDir, newFilename);
+    
+    // Rename the file
+    fs.renameSync(oldPath, newPath);
+    
+    const imagePath = `/ProfileImages/${newFilename}`;
+    console.log(`File renamed to: ${newFilename}`);
+    res.json({ imagePath: imagePath });
+});
+
+// Serve static files from ProfileImages directory
+app.use('/ProfileImages', express.static(profileImagesDir));
 
 // Handle socket connections
 io.on('connection', (socket) => {
@@ -43,13 +201,11 @@ io.on('connection', (socket) => {
     
     // Handle HP changes
     socket.on('hp-change', (data) => {
-        socket.to(data.campaign).emit('hp-change', data);
-        socket.to(data.campaign).emit('player-hp-change', data)
-        console.log(`HP Change from ${data.campaign}`);
-        console.log(`HP Change from ${socket.id}`);
         const campaignPath = path.join(campaignsDir, data.campaign);
         const initFile = path.join(campaignPath, 'ActiveInitiative/InitiativeOrder.txt');
-        addToInitiativeFile(data, initFile);
+        console.log(`HP Change from ${data.campaign}`);
+        console.log(`HP Change from ${socket.id}`);
+        addToInitiativeFileHP(data, initFile, socket);
     });
     
     // Handle initiative changes
@@ -116,9 +272,10 @@ app.post('/api/create-campaign', (req, res) => {
         let playerData = '';
         let playerData2 = '';
         
+        
         characters.forEach(character => {
-            playerData += `${character.name}; ${character.ac}; ${character.hp}\n`;
-            playerData2 += `${character.name}; ${character.ac}; ${character.hp}; 0; ${character.chrType}\n`;
+            playerData += `${character.name}; ${character.ac}; ${character.hp}; ${character.imagePath}\n`;
+            playerData2 += `${character.name}; ${character.ac}; ${character.hp}; 0; ${character.chrType}; ${character.hp}; ${character.imagePath}\n`;
         });
         
         fs.writeFileSync(playersFile, playerData);
@@ -130,24 +287,6 @@ app.post('/api/create-campaign', (req, res) => {
         console.error('Error creating campaign:', error);
         res.status(500).json({ error: 'Failed to create campaign' });
     }
-});
-
-// API endpoint to get all campaigns
-app.get('/api/campaigns', (req, res) => {
-    try {
-        const campaigns = fs.readdirSync(campaignsDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
-        
-        res.json(campaigns);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to read campaigns' });
-    }
-});
-
-// Serve home page as default
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Home.html'));
 });
 
 // Serve campaign creation page
@@ -175,7 +314,8 @@ app.get('/api/campaign/:campaignName/PlayerList', (req, res) => {
                 ac: parts[1] || '',
                 hp: parts[2] || '',
                 initiative: parts[3] || '',
-                chrType: parts[4] || ''
+                chrType: parts[4] || '',
+                unmodifiedhp: parts[5]
             };
         });
         
@@ -211,7 +351,9 @@ app.get('/api/campaign/:campaignName/ActiveInitiative', (req, res) => {
                 ac: parts[1] || '',
                 hp: parts[2] || '',
                 initiative: parts[3] || '',
-                chrType: parts[4] || ''
+                chrType: parts[4] || '',
+                unmodifiedhp: parts[5],
+                imagePath: parts[6]
             };
         });
         
@@ -243,8 +385,8 @@ function ResetTheInitiative(campaignName){
         // Append 0 for initiative to each line
         const initiativeLines = lines.map(line => {
             const parts = line.split('; ');
-            // Insert 0 as initiative (4th position: name; ac; hp; initiative; chrType)
-            return `${parts[0]}; ${parts[1]}; ${parts[2]}; 0; player`;
+            // Insert 0 as initiative (4th position: name; ac; hp; initiative; chrType; unmodifiedhp)
+            return `${parts[0]}; ${parts[1]}; ${parts[2]}; 0; player; ${parts[2]}`;
         });
         
         // Write to InitiativeOrder.txt
@@ -253,7 +395,7 @@ function ResetTheInitiative(campaignName){
 }
 
 function addToInitiativeFile(thedata, theFile) {
-    const {campaign, name, ac, hp, initiative, chrType} = thedata;
+    const {campaign, name, ac, hp, initiative, chrType, unmodifiedhp, imagePath} = thedata;
     const fileContent = fs.readFileSync(theFile, 'utf8');
     const lines = fileContent.trim().split('\n').filter(line => line.trim());
     var foundit = false;
@@ -262,15 +404,16 @@ function addToInitiativeFile(thedata, theFile) {
         const characterName = parts[0];
         console.log(`${characterName} and ${name}`)
         if (characterName === name){
-            console.log(`new initiative: ${initiative} for ${name}`);
+            console.log(`new initiative: ${initiative} for ${name} and unmodified hp ${unmodifiedhp}`);
             foundit = true;
-            return `${name}; ${ac}; ${hp}; ${initiative}; ${chrType}`;
+            return `${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}; ${imagePath}`;
+            
         }
         return line;
     });
     if (!foundit) {
         console.log(`new initiative: ${initiative} for not found character`)
-        updatedLines.push(`${name}; ${ac}; ${hp}; ${initiative}; ${chrType}`);
+        updatedLines.push(`${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}; ${imagePath}`);
     }
     updatedLines.sort((a, b) => {
         //array value of the initiative value
@@ -280,6 +423,40 @@ function addToInitiativeFile(thedata, theFile) {
     });
     const updatedContent = updatedLines.join('\n')+ '\n';
     fs.writeFileSync(theFile, updatedContent);
+
+}
+
+function addToInitiativeFileHP(thedata, theFile, socket) {
+    const {campaign, name, ac, hp, initiative, chrType} = thedata;
+    const fileContent = fs.readFileSync(theFile, 'utf8');
+    const lines = fileContent.trim().split('\n').filter(line => line.trim());
+    var foundit = false;
+    const updatedLines = lines.map(line => {
+        const parts = line.trim().split('; ');
+        const characterName = parts[0];
+        unmodifiedhp = parts[5];
+        console.log(`${characterName} and ${name}`)
+        if (characterName === name){
+            foundit = true;
+            return `${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}`;
+            
+        }
+        return line;
+    });
+    if (!foundit) {
+        updatedLines.push(`${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}`);
+    }
+    updatedLines.sort((a, b) => {
+        //array value of the initiative value
+        const aInitiative = parseInt(a.split('; ')[3]) || 0;
+        const bInitiative = parseInt(b.split('; ')[3]) || 0;
+        return bInitiative - aInitiative; // Descending order (highest first)
+    });
+    const updatedContent = updatedLines.join('\n')+ '\n';
+    fs.writeFileSync(theFile, updatedContent);
+    console.log(`${unmodifiedhp} for ${thedata.name}`)
+    socket.to(thedata.campaign).emit('hp-change', thedata);
+    socket.to(thedata.campaign).emit('player-hp-change', thedata,unmodifiedhp);
 
 }
 function RemoveCharacter(thedata, theFile){
@@ -299,4 +476,5 @@ function RemoveCharacter(thedata, theFile){
     // Write the updated content back to the file
     const updatedContent = updatedLines.join('\n') + '\n';
     fs.writeFileSync(theFile, updatedContent);
-}
+};
+

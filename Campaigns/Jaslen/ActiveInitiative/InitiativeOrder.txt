@@ -1,5 +1,4 @@
-Aedhan; 21; 121; 20; player
-Nandor; 14; 80; 17; player
-Goblin1; 12; 23; 16; antagonist
-Seren; 16; 10; 9; player
-Horace; 19; 8; 4; player
+Aehdan; 21; 164; 0; player; 164; /ProfileImages/Aehdan.png
+Horace; 19; 158; 0; player; 158; /ProfileImages/Horace.jpeg
+Nandor; 14; 92; 0; player; 92; /ProfileImages/Nandor.png
+Seren; 16; 122; 0; player; 122; /ProfileImages/Seren.jpeg

@@ -1,0 +1,4 @@
+Danger; 16; 58; 22; player; undefined
+Ward; 13; 38; 21; player; undefined
+Deric; 14; 49; 18; player; undefined
+Borlock; 15; 45; 17; player; undefined

@@ -1,0 +1,5 @@
+Borlock; 15; 45
+Danger; 16; 58
+Deric; 14; 51
+Forceror; 16; 32
+Ward; 13; 38

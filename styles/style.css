@@ -2,7 +2,7 @@
 :root{
     --darkbgColor: #0b0707;
     --darkbuttonColor: #44403a;
-    --darkCardColor: #221f1e;
+    --darkCardColor: #1e2122;
     --opponentColor: #410c11;
     --heroColor: #6f7b6f;
     --npcColor: #2b3a34;
@@ -25,7 +25,12 @@ text{
 body{
     background-color: var(--darkbgColor);
 }
-
+span{
+    margin: 5px;
+}
+.character-span{
+    margin: 5px;
+}
 #initiative-board {
     display: flex;
     gap: 20px; /* Space between sections */
@@ -33,32 +38,56 @@ body{
 }
 
 #combatantDetails {
-    flex: 1; /* Takes available space */
+    flex: .75; /* Takes available space */
     min-width: 300px; /* Minimum width */
     background-color: var(--darkCardColor);
     color: #ccc;
 }
 
 .initiativeList {
-    flex: 4;
     width: 100%;
     background-color: var(--darkbuttonColor);
     padding: 10px;
 
 }
+.parinitiativeList {
+    flex: 3;
+    width: 100%;
+    background-color: var(--darkbuttonColor);
+    padding: 10px;
 
+}
 .text-box {
     display: block;
     margin-top: 20px;
     margin-right: 10px;
+    height: 50px;
     padding: 8px;
     border: 1px solid #ccc;
+    background-color: #2b3a34;
     border-radius: 4px;
-    width: 25%;
+    width: 100%;
+    font-size: 14px;
+    font-family: 'Modern Antiqua', serif; 
+}
+
+.dice-roller-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.dice-roller-input {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 50px;
     max-width: 300px;
     font-size: 14px;
     font-family: 'Modern Antiqua', serif; 
 }
+
 .stattext-box{
     display: block;
     margin-top: 20px;
@@ -133,7 +162,7 @@ body{
 .body{
     margin: 20px;
 }
-.basic-button,.dice-roller-button{
+.basic-button{
     background-color: #58545f;
     max-width: 500px;
     height: 90px;
@@ -146,6 +175,113 @@ body{
     border-color: #39363d;
     font-family: 'Modern Antiqua', serif; 
     margin:1%;
+}
+.newplayer-button{
+    background-color: #ccc;
+    max-width: 500px;
+    height: 90px;
+    color: var(--darkCardColor);
+    padding: 20px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid;
+    border-color: #39363d;
+    font-family: 'Modern Antiqua', serif; 
+    margin:1%;
+}
+.newant-button{
+    background-color: var(--opponentColor);
+    max-width: 500px;
+    height: 90px;
+    color: white;
+    padding: 20px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid;
+    border-color: #39363d;
+    font-family: 'Modern Antiqua', serif; 
+    margin:1%;
+}
+.newneu-button{
+    background-color: var(--npcColor);
+    max-width: 500px;
+    height: 90px;
+    color: white;
+    padding: 20px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid;
+    border-color: #39363d;
+    font-family: 'Modern Antiqua', serif; 
+    margin:1%;
+}
+.dice-roller-button{
+    background-color: #00131E;
+    border: 3px solid;
+    width: 100%;
+    align-items: center;
+    position: relative;
+    height: 90px;
+    /*border-image: linear-gradient(45deg, #ece1d9, #74c7ca, #6fe2dc, #13298b) 1;*/
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px;
+    color: #e3daf8;
+    cursor: pointer;
+    font-size: 24px;
+    border: 2px solid;
+    border-color:#e5a076; 
+    font-family: 'Modern Antiqua', serif; 
+}
+.Home-button{
+    background-color: #58545f;
+    width: 300px;
+    height: 50px;
+    color: white;
+    padding: 10px 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid;
+    border-color: #39363d;
+    font-family: 'Modern Antiqua', serif; 
+    margin:1%;    
+}
+.next-button-section {
+    position: relative;
+    background-color: var(--cardColor);
+    border: 2px solid var(--borderColor);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 10px;
+    width: calc(100% - 20px);
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80px;
+}
+
+.Next-button{
+    background-color: #00131E;
+    border: 3px solid;
+    width: 100%;
+    align-items: center;
+    position: relative;
+    height: 90px;
+    /*border-image: linear-gradient(45deg, #ece1d9, #74c7ca, #6fe2dc, #13298b) 1;*/
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px;
+    color: #e3daf8;
+    cursor: pointer;
+    font-size: 24px;
+    border: 2px solid;
+    border-color:#e5a076; 
+    font-family: 'Modern Antiqua', serif; 
 }
 
 .heal-button{
@@ -337,4 +473,105 @@ body{
 
 .sortable-drag {
     transform: rotate(5deg);
+}
+
+/* Side menu styles *******************************************************************************************************************/
+.side-menu {
+    position: flex;
+    left: -300px; /* Hidden by default */
+    transform: translateY(-50%);
+    width: auto;
+    height: auto;
+    max-height: 80vh;
+    background-color: var(--darkCardColor);
+    border: 2px solid var(--darkbuttonColor);
+    border-radius: 10px;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    transition: right 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.side-menu.open {
+    right: 0; /* Show menu */
+}
+
+.side-menu-toggle {
+    position: flex;
+    left: 10px;
+    top: 20px;
+    background-color: var(--darkbuttonColor);
+    color: var(--darkText);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu-toggle:hover {
+    background-color: var(--heroColor);
+}
+
+.side-menu-content {
+    padding: 20px;
+    color: var(--darkText);
+    background-color: var(--darkCardColor);
+}
+
+.side-menu-content h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #ccc;
+    text-align: center;
+}
+
+/* Adjust dice roller styles for side menu */
+.side-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.side-menu .dice-roller-input {
+    width: 60px;
+    padding: 5px;
+    background-color: var(--darkbgColor);
+    color: var(--darkText);
+    border: 1px solid var(--darkbuttonColor);
+    border-radius: 5px;
+    text-align: center;
+}
+
+.side-menu .dice-roller-button {
+    padding: 8px 16px;
+    background-color: var(--darkbuttonColor);
+    color: var(--darkText);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.side-menu .dice-roller-button:hover {
+    background-color: var(--heroColor);
+}
+
+.left-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 0.75;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .side-menu {
+        width: 280px;
+        right: -280px;
+    }
 }

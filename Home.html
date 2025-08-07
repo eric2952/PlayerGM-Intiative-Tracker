@@ -6,35 +6,64 @@
     <title>DND Tracker Home</title>
 </head>
 <body>
-    <h1>Create New Campaign</h1>
-    <div id="create-campaign">
-        <button class="campaignCreate-button" onclick="window.location.href='campaignCreation.html'">Create Campaign</button>
+    <div id="loginModal" class="modal login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>D&D Tracker Login</h2>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div id="loginError" class="error-message" style="display: none;"></div>
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="password" name="password" placeholder="Password" required>
+                    </div>
+                    <button type="submit" id="loginBtn" class="loginBtn">Login</button>
+                </form>
+            </div>
+        </div>
     </div>
-    <h1>Campaign Selection</h1>
-    <div id="campaign-buttons"></div>
+    <!-- Main content - hidden until logged in -->
+    <div id="mainContent" style="display: none;">
+        <h1>Create New Campaign</h1>
+        <div id="create-campaign">
+            <button class="campaignCreate-button" onclick="window.location.href='campaignCreation.html'">Create Campaign</button>
+        </div>
+        <h1>Campaign Selection</h1>
+        <div id="campaign-buttons"></div>
+    </div>
+    <script src="scripts/auth.js"></script>
     <script>
-    fetch('/api/campaigns')
-    .then(res => res.json())
-    .then(folders => {
-        const container = document.getElementById('campaign-buttons');
-        folders.forEach(folder => {
-            const btn = document.createElement('button');
-            btn.textContent = folder;
-            btn.className = 'Campaign-Select-Button';
-            
-            //btn.onclick = () => window.location.href = `tracker.html?campaign=${encodeURIComponent(folder)}`;
-            btn.addEventListener('click', function() {
-                // Call your role selection function here
-                if (typeof showRoleSelection === 'function') {
-                    showRoleSelection(folder);
-                }
+        function loadCampaigns(){
+            fetch('/api/campaigns',{
+                 headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }               
+            })
+            .then(res => res.json())
+            .then(folders => {
+                const container = document.getElementById('campaign-buttons');
+                folders.forEach(folder => {
+                    const btn = document.createElement('button');
+                    btn.textContent = folder;
+                    btn.className = 'Campaign-Select-Button';
+                    
+                    //btn.onclick = () => window.location.href = `tracker.html?campaign=${encodeURIComponent(folder)}`;
+                    btn.addEventListener('click', function() {
+                        // Call your role selection function here
+                        if (typeof showRoleSelection === 'function') {
+                            showRoleSelection(folder);
+                        }
+                    });
+                    const NewSection = document.createElement("div");
+                    NewSection.classList.add('Campaign-section')
+                    NewSection.appendChild(btn);
+                    container.appendChild(NewSection)
+                });
             });
-            const NewSection = document.createElement("div");
-            NewSection.classList.add('Campaign-section')
-            NewSection.appendChild(btn);
-            container.appendChild(NewSection)
-        });
-    });
+        };
     </script>
     <script src="scripts/homeControls.js"></script>
     <div id="roleSelectionModal" class="modal">
@@ -45,15 +74,16 @@
             </div>
             <div class="modal-body">
                 <p>Are you joining as a Player or GM?</p>
-                <div class="role-buttons">
-                    <button id="playerBtn" class="role-button player-btn">Player</button>
-                    <button id="gmBtn" class="role-button gm-btn">GM</button>
-                </div>
                 <div class="character-selection">
                     <select id="characterSelect" class="character-dropdown">
                     <option value="">Select Character ...</option>
                 </select>
             </div>
+                <div class="role-buttons">
+                    <button id="playerBtn" class="role-button player-btn">Player</button>
+                    <button id="gmBtn" class="role-button gm-btn">GM</button>
+                </div>
+
             </div>
         </div>
     </div>
