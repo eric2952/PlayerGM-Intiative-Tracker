@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="styles/style.css"/>
+        <title>Token Board</title>
+    </head>
+    <body>
+        <button id="returnHome" class="Home-button" onclick="window.close()">Close Token Board</button>
+    
+        <div id="theTokenBoard" class="initiativeList">
+            <div id = "opportunityTracker" class="Token-section">Opportunities</div>
+            <div id = "complicationTracker" class="Token-section">Complications</div>
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="scripts/tokenBoard.js"></script>
+    </body>
+</html>

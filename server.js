@@ -14,6 +14,9 @@ const bcrypt = require('bcryptjs');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
 
+// Ensure Campaigns directory exists
+const campaignsDir = path.join(__dirname, 'Campaigns');
+
 // Middleware
 app.use(express.json());
 
@@ -22,7 +25,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(express.static('.')); // Serve your HTML/CSS/JS files
-
+// Authentication**********************************************************************************************************
 const users = [
     {
         id: 1,
@@ -102,22 +105,7 @@ app.get('/api/campaigns', authenticateToken, (req, res) => {
         res.status(500).json({ error: 'Failed to read campaigns' });
     }
     });
-// API endpoint to get all campaigns
-/*app.get('/api/campaigns', (req, res) => {
-    try {
-        const campaigns = fs.readdirSync(campaignsDir, { withFileTypes: true })
-            .filter(dirent => dirent.isDirectory())
-            .map(dirent => dirent.name);
-        
-        res.json(campaigns);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to read campaigns' });
-    }
-});*/
 
-
-// Ensure Campaigns directory exists
-const campaignsDir = path.join(__dirname, 'Campaigns');
 if (!fs.existsSync(campaignsDir)) {
     fs.mkdirSync(campaignsDir);
 }
@@ -131,7 +119,7 @@ const io = socketIo(server, {
     }
 });
 
-const storage = multer.diskStorage({
+const imageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, profileImagesDir);
     },
@@ -144,7 +132,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ 
-    storage: storage,
+    storage: imageStorage,
     fileFilter: function (req, file, cb) {
         // Check file type
         if (file.mimetype.startsWith('image/')) {
@@ -247,6 +235,9 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });
+    socket.on('sort-Initiative', (data) =>{
+        sortInitiative(data)
+    })
 
 });
 
@@ -395,15 +386,22 @@ function ResetTheInitiative(campaignName){
 }
 
 function addToInitiativeFile(thedata, theFile) {
-    const {campaign, name, ac, hp, initiative, chrType, unmodifiedhp, imagePath} = thedata;
+    var {campaign, name, ac, hp, initiative, chrType, unmodifiedhp, imagePath} = thedata;
     const fileContent = fs.readFileSync(theFile, 'utf8');
     const lines = fileContent.trim().split('\n').filter(line => line.trim());
     var foundit = false;
     const updatedLines = lines.map(line => {
         const parts = line.trim().split('; ');
         const characterName = parts[0];
-        console.log(`${characterName} and ${name}`)
         if (characterName === name){
+            if(unmodifiedhp===undefined){
+                unmodifiedhp = parts[5];
+                console.log("hp undefined");
+            }
+            if(imagePath===undefined){
+                imagePath = parts[6];
+                console.log("imagepath undefined");
+            }
             console.log(`new initiative: ${initiative} for ${name} and unmodified hp ${unmodifiedhp}`);
             foundit = true;
             return `${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}; ${imagePath}`;
@@ -427,7 +425,7 @@ function addToInitiativeFile(thedata, theFile) {
 }
 
 function addToInitiativeFileHP(thedata, theFile, socket) {
-    const {campaign, name, ac, hp, initiative, chrType} = thedata;
+    var {campaign, name, ac, hp, initiative, chrType, imagePath} = thedata;
     const fileContent = fs.readFileSync(theFile, 'utf8');
     const lines = fileContent.trim().split('\n').filter(line => line.trim());
     var foundit = false;
@@ -437,14 +435,22 @@ function addToInitiativeFileHP(thedata, theFile, socket) {
         unmodifiedhp = parts[5];
         console.log(`${characterName} and ${name}`)
         if (characterName === name){
+            if(unmodifiedhp===undefined){
+                unmodifiedhp = parts[5];
+                console.log("hp undefined");
+            }
+            if(imagePath===undefined){
+                imagePath = parts[6];
+                console.log("imagepath undefined");
+            }
             foundit = true;
-            return `${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}`;
+            return `${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}; ${imagePath}`;
             
         }
         return line;
     });
     if (!foundit) {
-        updatedLines.push(`${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}`);
+        updatedLines.push(`${name}; ${ac}; ${hp}; ${initiative}; ${chrType}; ${unmodifiedhp}; ${imagePath}`);
     }
     updatedLines.sort((a, b) => {
         //array value of the initiative value
@@ -478,3 +484,25 @@ function RemoveCharacter(thedata, theFile){
     fs.writeFileSync(theFile, updatedContent);
 };
 
+function sortInitiative(theData){
+    const{theNames,theCampaign} = theData
+    const initFile = path.join(campaignsDir,theCampaign, 'ActiveInitiative/InitiativeOrder.txt');
+    const initContent = fs.readFileSync(initFile, 'utf8');
+    const lines = initContent.trim().split('\n').filter(line => line.trim());
+    const characterMap = new Map();
+    const sortedLines = [];
+    
+    lines.forEach(line => {
+        const parts = line.trim().split(';');
+        const lineName = parts[0];
+        characterMap.set(lineName, line)
+    })
+    theNames.forEach(name => {
+        if (characterMap.has(name)){
+            sortedLines.push(characterMap.get(name));
+        }
+    })
+    const SortedContent = sortedLines.join('\n') + '\n';
+    fs.writeFileSync(initFile, SortedContent);
+
+}

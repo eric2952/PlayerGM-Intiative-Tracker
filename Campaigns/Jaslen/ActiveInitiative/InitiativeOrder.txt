@@ -1,4 +1,5 @@
-Aehdan; 21; 164; 0; player; 164; /ProfileImages/Aehdan.png
-Horace; 19; 158; 0; player; 158; /ProfileImages/Horace.jpeg
-Nandor; 14; 92; 0; player; 92; /ProfileImages/Nandor.png
-Seren; 16; 122; 0; player; 122; /ProfileImages/Seren.jpeg
+Seren; 16; 101; 5; player; 122; /ProfileImages/Seren.jpeg
+Nandor; 14; 15; 20; player; 92; /ProfileImages/Nandor.png
+Aehdan; 21; 34; 19; player; 164; /ProfileImages/Aehdan.png
+Horace; 19; 48; 17; player; 158; /ProfileImages/Horace.jpeg
+Guard1; 18; 92; 7; npc; 40; /ProfileImages/Guard1.png

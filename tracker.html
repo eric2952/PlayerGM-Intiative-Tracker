@@ -7,6 +7,7 @@
     </head>
     <body>
         <button id="returnHome" class="Home-button" onclick="window.location.href='Home.html'">Home</button>
+        <button id="tokenCounter" class = "Token-button" onclick="window.open('tokenBoard.html', '_blank')">Token Board</button>
         <h1>Combat Tracker</h1>
         <div id = "initiative-board">
             <div class="left-panel">
@@ -22,12 +23,16 @@
                             <button id="dicebutton" type="button" class="dice-roller-button">Roll</button>
                             
                         </div>
-                        <div><span id="diceResult"></span></div> 
+                        <div>
+                            <span id="diceResult"></span>
+                            <button id="diceDamageButton" type="button" class="dice-damage-button" style="display: none;">Damage</button>
+                            <button id="diceHealButton" type="button" class="dice-heal-button" style="display: none;">Heal</button>
+                        </div> 
                     </div>
                 </div>
                 <div id="combatantDetails" class="side-menu-content">
+                    <button id="addCombatantMenu" class="side-menu-toggle">Add Combatant</button>
                     <div id= "CombatantDetails" class="side-menu-content">
-                        <button id="addCombatantMenu" class="side-menu-toggle">Add Combatant</button>
                         <div id = "cmbtnamediv" class="NewCombatant-section">Combatant Name: <input type="text-box" id="combatantName"></div>
                         <div id = "cmbtacdiv" class="NewCombatant-section">Combatant AC:  <input type="text-box" id="combatantAC"></div>
                         <div id = "cmbthpdiv" class="NewCombatant-section">Combatant HP: <input type="text-box" id="combatantHP"></div>
@@ -59,7 +64,9 @@
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="scripts/initiativeScripts.js"></script>
-
+        <script src="scripts/hpCode.js"></script>
+        <script src="scripts/characterAdding.js"></script>
+        <script src="scripts/diceControls.js"></script>
         
     </body>
 </html>

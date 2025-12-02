@@ -250,6 +250,20 @@ span{
     font-family: 'Modern Antiqua', serif; 
     margin:1%;    
 }
+.Token-button{
+    background-color: #58545f;
+    width: 300px;
+    height: 50px;
+    color: white;
+    padding: 10px 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border: 2px solid;
+    border-color: #39363d;
+    font-family: 'Modern Antiqua', serif; 
+    margin:1%;    
+}
 .next-button-section {
     position: relative;
     background-color: var(--cardColor);
@@ -399,7 +413,7 @@ span{
     background-color: #ccc;
     box-shadow: inset 0 0 20px rgba(81, 19, 139, 0.3);
     font-family: 'Modern Antiqua', serif; 
-    cursor: move;
+    /*cursor: move;*/
 }
 .Enemy-section {
     border: 3px solid;
@@ -428,6 +442,55 @@ span{
     background-color: var(--npcColor);
 
 }
+.Token-section {
+    border: 3px solid;
+    display: flex;
+    width: 100% - 10px;
+    align-items: center;
+    position: relative;
+    /*border-image: linear-gradient(45deg, #ece1d9, #74c7ca, #6fe2dc, #13298b) 1;*/
+    border-radius: 15px;
+    padding: 15px;
+    margin: 10px;
+    background-color: #ccc;
+    box-shadow: inset 0 0 20px rgba(81, 19, 139, 0.3);
+    font-family: 'Modern Antiqua', serif; 
+    /*cursor: move;*/
+}
+.opptoken-button {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #ccc;
+    background-color: #f9f9f9;
+    margin: 5px;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 80px;
+    transition: all 0.2s;
+    background-image: url('icons/emptyToken.png');
+    background-size: contain;
+}
+.opptoken-button.active {
+    background-image: url('icons/Opportunity.jpeg');
+    background-size: contain;
+}   
+.comptoken-button {
+    width: 80px;
+    height: 80px;
+    border: 2px solid #ccc;
+    background-color: #f9f9f9;
+    margin: 5px;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 80px;
+    transition: all 0.2s;
+    background-image: url('icons/emptyToken.png');
+    background-size: contain;
+}
+.comptoken-button.active {
+    background-image: url('icons/Complication.jpeg');
+    background-size: contain;
+}  
 .NewCampaignInput{
     color: #ccc;
 }
@@ -465,10 +528,6 @@ span{
 }
 .sortable-ghost {
     opacity: 0.4;
-}
-
-.sortable-chosen {
-    background-color: #e6f3ff;
 }
 
 .sortable-drag {
@@ -574,4 +633,31 @@ span{
         width: 280px;
         right: -280px;
     }
+}
+.dice-damage-button,
+.dice-heal-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.dice-damage-button {
+    background-color: #ff4444;
+    color: white;
+}
+
+.dice-damage-button:hover {
+    background-color: #cc3333;
+}
+
+.dice-heal-button {
+    background-color: #396439;
+    color: white;
+}
+
+.dice-heal-button:hover {
+    background-color: #196619;
 }

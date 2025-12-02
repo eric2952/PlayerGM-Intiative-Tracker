@@ -1,4 +1,1 @@
-Salinse; 14; 43; 14; player; undefined; undefined
-Devistating One; 14; 42; 13; antagonist; 42; /ProfileImages/Devistating One.png
-Guard; 12; 20; 12; npc; 20; /ProfileImages/Guard.png
-Guard2; 12; 20; 12; antagonist; 20; /ProfileImages/Guard2.png
+

@@ -1,4 +1,5 @@
-Danger; 16; 58; 22; player; undefined
-Ward; 13; 38; 21; player; undefined
-Deric; 14; 49; 18; player; undefined
-Borlock; 15; 45; 17; player; undefined
+Danger; 16; 58; 9; player; undefined; undefined
+Borlock; 15; 45; 6; player; undefined; undefined
+Ward; 13; 38; 5; player; undefined; undefined
+Deric; 14; 51; 2; player; undefined; undefined
+Forceror; 16; 32; 0; player; 32

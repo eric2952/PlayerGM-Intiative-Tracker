@@ -1,0 +1,7 @@
+Nandor; 14; -1; 20; player; 92; /ProfileImages/Nandor.png
+Rodnan; 14; 81; 20; antagonist; 92; /ProfileImages/Rodnan.jpeg
+Aehdan; 21; 133; 19; player; 164; /ProfileImages/Aehdan.png
+Horace; 19; 158; 17; player; 158; /ProfileImages/Horace.jpeg
+Ecaroh; 19; 67; 7; antagonist; 158; /ProfileImages/Ecaroh.jpeg
+Neres; 16; 116; 6; antagonist; 122; /ProfileImages/Neres.jpeg
+Seren; 16; 91; 5; player; 122; /ProfileImages/Seren.jpeg

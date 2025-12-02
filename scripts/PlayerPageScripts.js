@@ -60,7 +60,7 @@ async function loadCampaignCharacters(cName) {
         const response = await fetch(`/api/campaign/${encodeURIComponent(cName)}/ActiveInitiative`);
         const characters = await response.json();
 
-        characters.sort((a, b) => parseInt(b.initiative) - parseInt(a.initiative));
+        //characters.sort((a, b) => parseInt(b.initiative) - parseInt(a.initiative));
         if (window.glideInstance){
             glideIndex = window.glideInstance.index
         }
@@ -122,7 +122,7 @@ function createCharacterSlide(character, itsMe) {
         relativeHPdisplay = "Grave"
     }   
     
-const imageHTML = character.imagePath ? 
+    const imageHTML = character.imagePath ? 
     `<img src="${character.imagePath}" alt="${character.name}" class="character-image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin: 10px auto; display: block;">` : '';
 
     if (itsMe) {
